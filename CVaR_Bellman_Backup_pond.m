@@ -26,6 +26,20 @@ J_k = J_kPLUS1; mu_k = J_kPLUS1;         % initialization
 
 for i = 1 : nx          % <--x's change along columns of J_k, X, L-->
     
+    x = xs(i);
+    
+    us = [0; 1];    % possible control actions at state x
+    
+    maxExp_u1 = maxExp_pond( J_kPLUS1, x, us(1), xs, ls, ws, P, dt, area_pond ); % will be col vector, 1 entry per confidence level
+    
+    maxExp_u2 = maxExp_pond( J_kPLUS1, x, us(2), xs, ls, ws, P, dt, area_pond );
+    
+    [ optExp, optInd ] = min( [maxExp_u1, maxExp_u2], [], 2 ); % col vector, 1 entry per confidence level
+    
+    J_k(:,i) = stage_cost_pond(x,m) + optExp;
+    
+    mu_k(:,i) = us(optInd); % need to check
+    
     for j = 1 : nl
         
         x = X(j,i);     % state at (j,i)-grid point

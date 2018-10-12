@@ -57,4 +57,4 @@ for i = 1 : nd % for each disturbance realization
     end  
     A = blkdiag( A, Ai ); b_mat(:,i) = bi; %fillup matrix column by column   
 end
-b = b_mat(:); % vectorizes matrix
+b = vec(b_mat); % vectorizes matrix

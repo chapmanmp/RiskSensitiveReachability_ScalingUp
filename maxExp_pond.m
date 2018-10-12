@@ -23,7 +23,7 @@ function bigexp = maxExp_pond( J_kPLUS1, x, u, y, xs, ls, ws, P, dt, area_pond )
 nd = length(ws); % # of possible values that disturbance can take on
 
 [ A, b ] = getLMI_pond( x, u, ws, xs, ls, J_kPLUS1, dt, area_pond );
-% encodes linear interpolation of y*J_k+1( x_k+1, y ) versus y
+% encodes linear interpolation of y*J_k+1( x_k+1, y ) versus y, given u and x
 
 cvx_solver mosek;
 for j = 1 : 2 % allow for 2 different solvers
@@ -35,10 +35,9 @@ for j = 1 : 2 % allow for 2 different solvers
         maximize( P' * t / y )
     
         subject to
-    
-            % one LMI per disturbance realization (equivalently, per next state realization)
-            %for i = 1 : nd,  As{i}*Z(i) + bs{i} >= t(i); end 
-            A*Z + b >= vec( repmat(t', length(ls)-1, 1) );
+        
+            %for i = 1 : nd,  As{i}*Z(i) + bs{i} >= t(i); end % one LMI per disturbance realization (eqv., per next state realization)
+            A*Z + b >= vec( repmat(t', length(ls)-1, 1) ); % [t(1);...;t(1);...;t(nd);...;t(nd)]
           
             Z <= 1;
     
