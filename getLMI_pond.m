@@ -9,14 +9,14 @@
     % J_k+1 : optimal cost-to-go at time k+1, array
     % dt : duration of [k,k+1) interval
     % area_pond : approx. surface area of pond
-% OUTPUT: A = blkdiag( As{1}, As{2}, ... ), b = [bs{1}; bs{2}; ... ]
-%             |As{1} 0     .. 0|                |bs{1}|
-%           = |0     As{2} .. 0|              = |bs{2}|
-%             |0     0     ..  |                |..   |
+% OUTPUT: A = blkdiag( A1, A2, ... ), b = [b1; b2; ... ]
+%             |A1 0  .. 0|                |b1|
+%           = |0  A2 .. 0|              = |b2|
+%             |0  0  ..  |                |..|
 % NOTE:
-    % As{i} & bs{i} are column vectors that encode the linear interpolation of y*J_k+1( x_k+1, y ) vs. y
+    % Ai & bi are column vectors that encode the linear interpolation of y*J_k+1( x_k+1, y ) vs. y
         % at the ith realization of x_k+1 = pond_dynamics_dt( x, u, ws(i), dt, area_pond )
-    % max_t,y { t | As{1}(i)*y + bs{1}(i) >= t } is equivalent to max_y { g(y) := min_i As{1}(i)*y + bs{1}(i) }                                          
+    % max_t,y { t | A1(j)*y + b1(j) >= t } is equivalent to max_y { g(y) := min_j A1(j)*y + b1(j) }                                          
     % g(y) = linear interpolation of y*J_k+1(x,y) vs. y, at fixed x; concave & piecewise linear in y
     % uses Chow, et al. NIPS 2015 to manage continuous confidence level
     % uses linear interpolation to manage continuous state space
@@ -24,12 +24,12 @@
 % DATE: October 11, 2019
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [ A, b ] = getLMIs_pond( x, u, ws, xs, ls, J_kPLUS1, dt, area_pond )
+function [ A, b ] = getLMI_pond( x, u, ws, xs, ls, J_kPLUS1, dt, area_pond )
 
 % # disturbance realizations        # confidence levels
 nd = length(ws);                    nl = length(ls);
 
-A = []; b = [];
+A = []; b_mat = zeros(nl-1,nd); % to contain [b1 b2 ... ]
 
 for i = 1 : nd % for each disturbance realization
 
@@ -37,7 +37,7 @@ for i = 1 : nd % for each disturbance realization
     
     if x_kPLUS1 > max(xs), x_kPLUS1 = max(xs); end             % snap to grid on boundary
     
-    Ai = zeros(nl-1,1); bi = zeros(nl-1,1);
+    Ai = zeros(nl-1,1); bi = zeros(nl-1,1);                    % one entry per confidence level line segment
         
     for j = nl-1: -1: 1 % for each confidence level line segment, [l_j+1, l_j], e.g., ls = [l_1 = 0.95, l_2 = 1/2, l_3 = 0.05] 
                         % [l_3, l_2] = [0.05, 1/2] 
@@ -54,8 +54,7 @@ for i = 1 : nd % for each disturbance realization
         
         bi(j) = ls(j+1) * (J_jPLUS1 - Ai(j));                       
         % approx. y-int of jth line segment of linear_interp( y*J_k+1( x_k+1, y ) vs. y )
-    end
-    
-    A = blkdiag( A, Ai ); b = [b; bi];
-    
+    end  
+    A = blkdiag( A, Ai ); b_mat(:,i) = bi; %fillup matrix column by column   
 end
+b = b_mat(:); % vectorizes matrix
