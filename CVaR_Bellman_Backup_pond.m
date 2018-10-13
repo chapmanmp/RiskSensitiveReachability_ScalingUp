@@ -40,24 +40,23 @@ for i = 1 : nx          % <--x's change along columns of J_k, X, L-->
     
     mu_k(:,i) = us(optInd); % need to check
     
-    for j = 1 : nl
-        
-        x = X(j,i);     % state at (j,i)-grid point
-        
-        y = L(j,i);     % confidence level at (j,i)-grid point
-        
-        us = [0; 1];    % possible control actions at state x
-        
-        maxExp_u1 = maxExp_pond( J_kPLUS1, x, us(1), y, xs, ls, ws, P, dt, area_pond ); 
-        
-        maxExp_u2 = maxExp_pond( J_kPLUS1, x, us(2), y, xs, ls, ws, P, dt, area_pond );
-        
-        if maxExp_u1 >= maxExp_u2, uStar = us(2); else uStar = us(1); end
-        
-        J_k(j,i) =  min( stage_cost_pond(x,m) + maxExp_u1, stage_cost_pond(x,m) + maxExp_u2 ); % Jk(x,y)
-        
-        mu_k(j,i) = uStar;
-        
-    end
-    
+%     for j = 1 : nl
+%         
+%         x = X(j,i);     % state at (j,i)-grid point
+%         
+%         y = L(j,i);     % confidence level at (j,i)-grid point
+%         
+%         us = [0; 1];    % possible control actions at state x
+%         
+%         maxExp_u1 = maxExp_pond( J_kPLUS1, x, us(1), y, xs, ls, ws, P, dt, area_pond ); 
+%         
+%         maxExp_u2 = maxExp_pond( J_kPLUS1, x, us(2), y, xs, ls, ws, P, dt, area_pond );
+%         
+%         if maxExp_u1 >= maxExp_u2, uStar = us(2); else uStar = us(1); end
+%         
+%         J_k(j,i) =  min( stage_cost_pond(x,m) + maxExp_u1, stage_cost_pond(x,m) + maxExp_u2 ); % Jk(x,y)
+%         
+%         mu_k(j,i) = uStar;
+%         
+%     end
 end

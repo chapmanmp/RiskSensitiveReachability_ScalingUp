@@ -1,0 +1,12 @@
+        
+Objective functions in RiskSensitiveReachability_Sum2018\maxExp_pond.m 
+
+maximize( P' * t / y ) % "workspace_for_testing_Oct11.mat"
+
+maximize( (P/y)' * t  ) % "workspace_for_testing_Oct12.mat" 
+
+Js{3} differ by about 10^(-14)
+
+Js{2} differ by about 10^(-13) 
+
+Js{1} differ by about 10^(-12)

@@ -4,7 +4,7 @@
     % m: soft-max parameter, g: signed distance with respect to constraint set
     % pond example
 % AUTHORS: Margaret Chapman
-% DATE: September 5, 2018
+% DATE: October 12, 2018
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 close all; clearvars; clc;
@@ -22,6 +22,7 @@ Js{N+1} = stage_cost_pond( X, m );   % Initial value function, JN(x,y) = beta*ex
 % Do CVaR-Bellman Recursion
 for k = N: -1: 1,  [ Js{k} , mus{k} ] = CVaR_Bellman_Backup_pond( Js{k+1}, X, L, ws, P, m, dt, A ); display(num2str(k-1)); end
 
+%%
 % See Results
 for k = N+1: -1: 1
     

@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% DESCRIPTION: Computes the parameters for linear matrix inequality 
+% DESCRIPTION: Computes the parameters for linear matrix inequality given x and u
 % INPUT: 
     % x : state at time k, real number
     % u : control at time k, real number
@@ -9,15 +9,16 @@
     % J_k+1 : optimal cost-to-go at time k+1, array
     % dt : duration of [k,k+1) interval
     % area_pond : approx. surface area of pond
-% OUTPUT: A = blkdiag( A1, A2, ... ), b = [b1; b2; ... ]
-%             |A1 0  .. 0|                |b1|
-%           = |0  A2 .. 0|              = |b2|
-%             |0  0  ..  |                |..|
+% OUTPUT: A = blkdiag( A1, ..., And ), b = [b1; ...; bnd], nd = # disturbance values
+%             |A1 0  .. 0   |                |b1 |
+%           = |0  ..... 0   |              = |...|
+%             |0  0  .. And |                |bnd|
 % NOTE:
-    % Ai & bi are column vectors that encode the linear interpolation of y*J_k+1( x_k+1, y ) vs. y
+    % Ai & bi are column vectors that encode the linear interpolation of y*J_k+1( x_k+1, y ) vs. y, given x and u
         % at the ith realization of x_k+1 = pond_dynamics_dt( x, u, ws(i), dt, area_pond )
-    % max_t,y { t | A1(j)*y + b1(j) >= t } is equivalent to max_y { g(y) := min_j A1(j)*y + b1(j) }                                          
-    % g(y) = linear interpolation of y*J_k+1(x,y) vs. y, at fixed x; concave & piecewise linear in y
+    % max_t,y { t | A1(j)*y + b1(j) >= t, confidence level line segment j } is equivalent to 
+        % max_y { g(y) := min_j A1(j)*y + b1(j), confidence level line segment j }                                          
+    % g(y) = linear interpolation of y*J_k+1(x,y) vs. y, at fixed x (and u); concave & piecewise linear in y
     % uses Chow, et al. NIPS 2015 to manage continuous confidence level
     % uses linear interpolation to manage continuous state space
 % AUTHOR: Margaret Chapman
@@ -29,7 +30,7 @@ function [ A, b ] = getLMI_pond( x, u, ws, xs, ls, J_kPLUS1, dt, area_pond )
 % # disturbance realizations        # confidence levels
 nd = length(ws);                    nl = length(ls);
 
-A = []; b_mat = zeros(nl-1,nd); % to contain [b1 b2 ... ]
+A = []; b_mat = zeros(nl-1,nd); % to contain [b1 b2 ... bnd]
 
 for i = 1 : nd % for each disturbance realization
 

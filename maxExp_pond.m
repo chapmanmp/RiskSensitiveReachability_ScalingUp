@@ -1,66 +1,48 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% DESCRIPTION: Computes max over R \in risk envelope of E[ R*J_k+1( x_k+1, y*R ) | x_k, y, u_k ]
+% DESCRIPTION: For each i, approximates max_R\inRiskEnvelope { E[ R*J_k+1(x_k+1,ls(i)*R) | x_k, ls(i), u_k ] }
 %              Uses Chow 2015 linear interpolation method on confidence level
 %              Uses change of variable, Z := y*R 
 % INPUT: 
     % J_k+1 : optimal cost-to-go at time k+1, array
     % x : state at time k, real number
     % u : control at time k, real number
-    % y : confidence level at time k, real number
     % xs : x values, row vector
     % ls : confidence levels, row vector
     % ws(i): ith possible value of w_k
     % P(i): probability that w_k = ws(i)
     % dt : duration of [k,k+1) interval
     % area_pond : approx. surface area of pond
-% OUTPUT: approximation of maximum over R \in risk envelope of E[ R*J_k+1( x_k+1, y*R ) | x_k, y, u_k ]
+% OUTPUT: bigexp(i) ~= max_R\inRiskEnvelope { E[ R*J_k+1(x_k+1,ls(i)*R) | x_k, ls(i), u_k ] }
 % AUTHOR: Margaret Chapman
-% DATE: September 5, 2018
+% DATE: October 12, 2018
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function bigexp = maxExp_pond( J_kPLUS1, x, u, y, xs, ls, ws, P, dt, area_pond )
+function bigexp = maxExp_pond( J_kPLUS1, x, u, xs, ls, ws, P, dt, area_pond )
 
-nd = length(ws); % # of possible values that disturbance can take on
+% # disturbance values  # confidence levels
+nd = length(ws);        nl = length(ls);
+
+% SOMETHING WRONG WITH THE COMMENTED THREE LINES BELOW
+%lstack = vec( repmat(ls, nd, 1) );  % [ls(1);...;ls(1);...;ls(end);...;ls(end)]
+%Pstack = repmat(P, nl, 1);          % [P(1);...; P(end);..;P(1);...   ;P(end)]         
+%f_full = Pstack./lstack; % column vector
+
+f_full = [];
+for i = 1 : nl
+    f_full = [f_full; P/ls(i)];
+end
 
 [ A, b ] = getLMI_pond( x, u, ws, xs, ls, J_kPLUS1, dt, area_pond );
 % encodes linear interpolation of y*J_k+1( x_k+1, y ) versus y, given u and x
 
-cvx_solver mosek;
-for j = 1 : 2 % allow for 2 different solvers
-    
-    cvx_begin quiet
+[tStar, bigexp] = argLargeLP_2( f_full, A, b, P, ls, nl, nd ); % column vector
 
-        variables Z(nd,1) t(nd,1)
-    
-        maximize( P' * t / y )
-    
-        subject to
-        
-            %for i = 1 : nd,  As{i}*Z(i) + bs{i} >= t(i); end % one LMI per disturbance realization (eqv., per next state realization)
-            A*Z + b >= vec( repmat(t', length(ls)-1, 1) ); % [t(1);...;t(1);...;t(nd);...;t(nd)]
-          
-            Z <= 1;
-    
-            Z >= 0;
-    
-            P' * Z == y;
-    
-    cvx_end
-    
-    if strcmpi(cvx_status, 'Solved') || strcmpi(cvx_status, 'Inaccurate/Solved'), break;
-        
-    else
-        
-        if j == 1, cvx_solver sedumi;
-            
-        else, error('maxExp.m: cvx not solved.');
-            
-        end
-        
-    end
-
+bigexp = zeros(nl,1);
+for i = 1 : nl 
+%     
+    start_i = (i-1)*nd + 1; end_i = i*nd;
+%     
+    bigexp(i) = (f_full(start_i:end_i))' * tStar( start_i : end_i );
+    %bigexp(i) = (P/ls(i))' * tStar( start_i : end_i );
+%     
 end
-
-if isinf(cvx_optval) || isnan(cvx_optval), display(cvx_optval); error('maxExp.m: solution is inf or nan.'); end
-
-bigexp = cvx_optval;
