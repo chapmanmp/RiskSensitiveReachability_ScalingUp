@@ -15,34 +15,32 @@
         % subject to constraints
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [tStar,bigexp] = argLargeLP_2( f_full, A, b, P, ls, nl, nd )
-tStar = []; bigexp = zeros(nl,1);
-big_size = max(max(abs(b)))/2 + max(max(abs(A)))/2; % to put constraints on same scales
-myfactor = max(P)/big_size;
+function tStar = argLargeLP( f_full, A, b, P, ls, nl, nd )
 
-for i = 1:nl
-start_i = (i-1)*nd + 1; end_i = i*nd;
+bigA = []; for i = 1 : nl, bigA = blkdiag(bigA, A); end; bigb = repmat(b, nl, 1);
+
+big_size = max(max(abs(b)))/2 + max(max(abs(A)))/2; myfactor = max(P)/big_size; % gets constraints on same scales
+
 cvx_solver mosek;
 cvx_begin quiet
     cvx_precision best
-    variables Z(nd,1) t(nd,1)   
-    maximize( (f_full(start_i:end_i))' * t )  % (P/ls(i))' * t   
-    subject to           
-            (myfactor*A)*Z + (myfactor*b) >= myfactor*vec( repmat(t', nl-1, 1) ); % [ti(1);...;ti(1);...;ti(nd);...;ti(nd)]
-            %for i = 1 : nd,  As{i}*Z(i) + bs{i} >= t(i); end % one LMI per disturbance realization (eqv., per next state realization)
-            P' * Z == ls(i);
-            
-            Z <= 1;
-            
-            Z >= 0;    
-cvx_end  
-tStar = [tStar; t];
-bigexp(i) = cvx_optval;
+    
+    variables Z(nd,nl) t(nl*nd,1)   
+    
+    maximize( f_full' * t )  % (P/ls(i))' * t   
+    subject to
+        
+        (myfactor*bigA) * vec(Z) + (myfactor*bigb) >= myfactor*vec( repmat(t', nl-1, 1) );
+        P' * Z == ls'; 
+        Z <= 1;
+        Z >= 0;
+
+cvx_end
+
+tStar = t;
 
 if isinf(cvx_optval) || isnan(cvx_optval) || strcmpi(cvx_status, 'Inaccurate/Solved')
     display(cvx_optval);
     error('maxExp.m: cvx not solved.'); 
 end
 
-end
-end

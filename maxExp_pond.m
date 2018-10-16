@@ -22,27 +22,20 @@ function bigexp = maxExp_pond( J_kPLUS1, x, u, xs, ls, ws, P, dt, area_pond )
 % # disturbance values  # confidence levels
 nd = length(ws);        nl = length(ls);
 
-% SOMETHING WRONG WITH THE COMMENTED THREE LINES BELOW
-%lstack = vec( repmat(ls, nd, 1) );  % [ls(1);...;ls(1);...;ls(end);...;ls(end)]
-%Pstack = repmat(P, nl, 1);          % [P(1);...; P(end);..;P(1);...   ;P(end)]         
-%f_full = Pstack./lstack; % column vector
-
-f_full = [];
-for i = 1 : nl
-    f_full = [f_full; P/ls(i)];
-end
+f_full = []; for i = 1 : nl, f_full = [f_full; P/ls(i)]; end
 
 [ A, b ] = getLMI_pond( x, u, ws, xs, ls, J_kPLUS1, dt, area_pond );
 % encodes linear interpolation of y*J_k+1( x_k+1, y ) versus y, given u and x
 
-[tStar, bigexp] = argLargeLP_2( f_full, A, b, P, ls, nl, nd ); % column vector
+%[tStar, bigexp] = argLargeLP_2( f_full, A, b, P, ls, nl, nd ); % column vector
+tStar = argLargeLP( f_full, A, b, P, ls, nl, nd ); % column vector
 
 bigexp = zeros(nl,1);
+
 for i = 1 : nl 
-%     
+ 
     start_i = (i-1)*nd + 1; end_i = i*nd;
-%     
-    bigexp(i) = (f_full(start_i:end_i))' * tStar( start_i : end_i );
-    %bigexp(i) = (P/ls(i))' * tStar( start_i : end_i );
-%     
+
+    bigexp(i) = f_full(start_i:end_i)' * tStar(start_i:end_i);
+
 end
