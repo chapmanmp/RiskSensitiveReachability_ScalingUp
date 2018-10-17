@@ -30,33 +30,18 @@ for i = 1 : nx          % <--x's change along columns of J_k, X, L-->
     
     us = [0; 1];    % possible control actions at state x
     
-    maxExp_u1 = maxExp_pond( J_kPLUS1, x, us(1), xs, ls, ws, P, dt, area_pond ); % will be col vector, 1 entry per confidence level
+    maxExp_us = maxExp_pond( J_kPLUS1, x, us, xs, ls, ws, P, dt, area_pond ); 
+    %maxExp_us(i,j) = maxExp, given state x, confidence level ls(i), and control us(j)
     
-    maxExp_u2 = maxExp_pond( J_kPLUS1, x, us(2), xs, ls, ws, P, dt, area_pond );
-    
-    [ optExp, optInd ] = min( [maxExp_u1, maxExp_u2], [], 2 ); % col vector, 1 entry per confidence level
+    %maxExp_u1 = maxExp_pond( J_kPLUS1, x, us(1), xs, ls, ws, P, dt, area_pond ); 
+    %col vector, 1 entry per confidence level
+    %maxExp_u2 = maxExp_pond( J_kPLUS1, x, us(2), xs, ls, ws, P, dt, area_pond );
+    %[ optExp, optInd ] = min( [maxExp_u1, maxExp_u2], [], 2 ); % col vector, 1 entry per confidence level
+   
+    [ optExp, optInd ] = min( maxExp_us, [], 2 ); % col vector, 1 entry per confidence level
     
     J_k(:,i) = stage_cost_pond(x,m) + optExp;
     
     mu_k(:,i) = us(optInd); % need to check
     
-%     for j = 1 : nl
-%         
-%         x = X(j,i);     % state at (j,i)-grid point
-%         
-%         y = L(j,i);     % confidence level at (j,i)-grid point
-%         
-%         us = [0; 1];    % possible control actions at state x
-%         
-%         maxExp_u1 = maxExp_pond( J_kPLUS1, x, us(1), y, xs, ls, ws, P, dt, area_pond ); 
-%         
-%         maxExp_u2 = maxExp_pond( J_kPLUS1, x, us(2), y, xs, ls, ws, P, dt, area_pond );
-%         
-%         if maxExp_u1 >= maxExp_u2, uStar = us(2); else uStar = us(1); end
-%         
-%         J_k(j,i) =  min( stage_cost_pond(x,m) + maxExp_u1, stage_cost_pond(x,m) + maxExp_u2 ); % Jk(x,y)
-%         
-%         mu_k(j,i) = uStar;
-%         
-%     end
 end
