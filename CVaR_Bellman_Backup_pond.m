@@ -34,7 +34,6 @@ for i = 1 : nx          % <--x's change along columns of J_k, X, L-->
     %maxExp_us(i,j) = maxExp, given state x, confidence level ls(i), and control us(j)
     
     %maxExp_u1 = maxExp_pond( J_kPLUS1, x, us(1), xs, ls, ws, P, dt, area_pond ); 
-    %col vector, 1 entry per confidence level
     %maxExp_u2 = maxExp_pond( J_kPLUS1, x, us(2), xs, ls, ws, P, dt, area_pond );
     %[ optExp, optInd ] = min( [maxExp_u1, maxExp_u2], [], 2 ); % col vector, 1 entry per confidence level
    

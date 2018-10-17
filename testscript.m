@@ -6,7 +6,7 @@ Js_GROUNDTRUTH = Js;
 clear Js
 
 for i = 1 : length(Js_new)
-    isequal(Js_new{i},Js_GROUNDTRUTH{i})
+    Js_new{i}-Js_GROUNDTRUTH{i}
 end
 
 % 1 BIG LP (argLargeLP_us.m) for all ls and us, less bulk scaling

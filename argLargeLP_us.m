@@ -18,8 +18,6 @@
 
 function tStar = argLargeLP_us( f_full, bigA, bigb, P, ls, nl, nd, nu, fus )
 
-%bigA = []; for i = 1 : nl, bigA = blkdiag(bigA, A); end; bigb = repmat(b, nl, 1);
-
 %big_size = max(max(abs(bigb)))/2 + max(max(abs(bigA)))/2; myfactor = max(P)/big_size; % gets constraints on similar scales
 
 cvx_solver mosek;
@@ -48,5 +46,4 @@ if isinf(cvx_optval) || isnan(cvx_optval) || strcmpi(cvx_status, 'Inaccurate/Sol
     error('maxExp.m: cvx not solved.'); 
 end
 
-disp('Im using argLargeLP_us.m');
 

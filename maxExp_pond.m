@@ -23,7 +23,6 @@ function bigexp = maxExp_pond( J_kPLUS1, x, us, xs, ls, ws, P, dt, area_pond )
 nd = length(ws);        nl = length(ls);        nu = length(us);
 
 f_full = zeros(nd,nl); for i = 1 : nl, f_full(:,i) = P/ls(i); end; f_full = vec(f_full); f_full = repmat(f_full, nu, 1);
-%f_full = []; for i = 1 : nl, f_full = [f_full; P/ls(i)]; end; f_full = repmat(f_full, nu, 1);
 
 nrows = nl*nd*(nl-1); bus = zeros(nrows,nu); fus = ones(nrows,nu); Aus = []; 
 for j = 1 : nu
@@ -33,9 +32,6 @@ for j = 1 : nu
     fu = max(P)/mean([max(max(abs(bu))), max(max(abs(Au)))]); % gets constraints on similar scales
 
     for i = 1 : nl, Aus = blkdiag(Aus, fu*Au); end
-    
-    fu*Au
-    fu*bu
     
     bus(:,j) = repmat(fu*bu, nl, 1); fus(:,j) = fu*fus(:,j);
 
@@ -53,11 +49,7 @@ for j = 1 : nu
     
     tStar_j = tStar( 1 + (j-1)*nl*nd : j*nl*nd ); % extract optimal arg for us(j)
 
-    for i = 1 : nl 
-    
-        bigexp(i,j) = (P/ls(i))' * tStar_j( (i-1)*nd + 1 : i*nd ); % extract optimal value for us(j), ls(i)
-
-    end
+    for i = 1 : nl,  bigexp(i,j) = (P/ls(i))' * tStar_j( (i-1)*nd + 1 : i*nd ); end % extract optimal value for us(j), ls(i)
     
 end
 
