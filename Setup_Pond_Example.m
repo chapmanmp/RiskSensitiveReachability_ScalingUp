@@ -10,10 +10,11 @@ K_lb = 0; K_ub = 3;                     % Constraint set bounds [ft], K = (0, 3f
 dx = 1/2;                               % State discretization [ft]
 
 xs = K_lb : dx : K_ub + 1;              % Discretized states [ft]
+nx = length(xs);
+         
+ls = [0.95; 0.7; 0.3; 0.05];            % Discretized confidence levels
 
-ls = [0.95, 0.7, 0.3, 0.05];            % Discretized confidence levels
-
-[ X, L ] = meshgrid( xs, ls );
+[ X, ~ ] = meshgrid( xs, ls' );
 
 dt = 300;                               % Duration of [k, k+1) [sec], 5min = 300sec
 
@@ -29,5 +30,5 @@ P = getProbDist(ws, Mymean, Myvariance, Myskewness); % P(i): probability that wk
 
 m = 10;                                 % soft-max parameter
 
-A = 28292;                              % approx. surface area, pond 1 (south) [ft^2]
+area_pond = 28292;                      % approx. surface area, pond 1 (south) [ft^2]
 

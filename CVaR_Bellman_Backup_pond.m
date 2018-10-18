@@ -16,15 +16,11 @@
 % DATE: September 5, 2018
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [ J_k, mu_k ] = CVaR_Bellman_Backup_pond( J_kPLUS1, X, L, ws, P, m, dt, area_pond )
+function [ J_k, mu_k ] = CVaR_Bellman_Backup_pond( J_kPLUS1, xs, nx, ls, ws, P, m, dt, area_pond )
 
-xs = X(1,:); ls = L(:,1);                % discretized states, discretized confidence levels
+J_k = J_kPLUS1; mu_k = J_kPLUS1; % initialization
 
-[ nl, nx ] = size( X );                  % nl = # discrete confidence levels, nx = # discrete states
-
-J_k = J_kPLUS1; mu_k = J_kPLUS1;         % initialization
-
-for i = 1 : nx          % <--x's change along columns of J_k, X, L-->
+for i = 1 : nx      % <--x's change along columns of J_k, X, L-->
     
     x = xs(i);
     

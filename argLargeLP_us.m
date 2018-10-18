@@ -24,7 +24,6 @@ cvx_solver mosek;
 cvx_begin quiet
     cvx_precision best
     
-    %variables Z(nd,nl) t(nl*nd,1) 
     variables Z(nd,nl*nu) t(nl*nd*nu,1)
     
     maximize( f_full' * t )  % (P/ls(i))' * t   
@@ -33,7 +32,7 @@ cvx_begin quiet
         %(myfactor*bigA) * vec(Z) + (myfactor*bigb) >= myfactor*vec( repmat(t', nl-1, 1) );
         
         bigA * vec(Z) + bigb >= fus.*vec( repmat(t', nl-1, 1) ); %bigA, bigb have fus incroporated
-        P' * Z == repmat( ls', 1, nu ); 
+        P' * Z == repmat( ls', 1, nu ); %ls is a column vector
         Z <= 1;
         Z >= 0;
 
@@ -41,8 +40,7 @@ cvx_end
 
 tStar = t;
 
-if isinf(cvx_optval) || isnan(cvx_optval) || strcmpi(cvx_status, 'Inaccurate/Solved')
-    display(cvx_optval);
+if isinf(cvx_optval) || isnan(cvx_optval) || ~strcmpi(cvx_status, 'Solved')
     error('maxExp.m: cvx not solved.'); 
 end
 
