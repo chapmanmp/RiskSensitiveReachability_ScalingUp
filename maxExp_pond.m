@@ -30,6 +30,7 @@ for j = 1 : nu
     [ Au, bu ] = getLMI_pond( x, us(j), ws, xs, ls, J_kPLUS1, dt, area_pond );
     
     fu = max(P)/mean([max(max(abs(bu))), max(max(abs(Au)))]); % gets constraints on similar scales
+    fu = 1;
 
     for i = 1 : nl, Aus = blkdiag(Aus, fu*Au); end
     

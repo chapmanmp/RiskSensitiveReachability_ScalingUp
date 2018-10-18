@@ -1,0 +1,15 @@
+Scaling experiments
+
+# time points, N = 48
+# confidence levels, nl = 9
+# controls, nu = 2
+# disturbances, nd = 10
+
+solving N*nx LPs, where each LP has 2*nd*nl*nu variables
+
+# states, nx = 66 (dx = 1/10): time = 12 min, 4.70 sec
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+num_states = [66];
+
+compute_time = [12 + 4.70/60]; % min

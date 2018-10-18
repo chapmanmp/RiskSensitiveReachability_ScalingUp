@@ -22,9 +22,8 @@ Js{N+1} = stage_cost_pond( X, m );   % Initial value function, JN(x,y) = beta*ex
 % Do CVaR-Bellman Recursion
 for k = N: -1: 1,  [ Js{k} , mus{k} ] = CVaR_Bellman_Backup_pond( Js{k+1}, xs, nx, ls, ws, P, m, dt, area_pond ); display(num2str(k-1)); end
 
-%%
-% See Results
-for k = N+1: -1: 1
+%for k = N+1: -1: 1
+for k = 1 : 1   
     
     figure(k); FigureSettings; mesh( X, L, Js{k} ); title(['Dyn. Programming (soft-max, m = ', num2str(m),')']);
     

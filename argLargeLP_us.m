@@ -38,10 +38,10 @@ cvx_begin quiet
 
 cvx_end
 
-tStar = t;
-
 if isinf(cvx_optval) || isnan(cvx_optval) || ~strcmpi(cvx_status, 'Solved')
     error('maxExp.m: cvx not solved.'); 
 end
+
+tStar = t;
 
 
