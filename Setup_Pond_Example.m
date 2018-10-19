@@ -7,8 +7,7 @@
 
 K_lb = 0; K_ub = 5;                     % Constraint set bounds [ft]
 
-%dx = 1/2;                               % State discretization [ft]
-dx = 1/10;
+dx = 1/128;                              % State discretization [ft]
 
 xs = K_lb : dx : K_ub + 1.5;              % Discretized states [ft]
 nx = length(xs);

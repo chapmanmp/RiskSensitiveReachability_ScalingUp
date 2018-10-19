@@ -17,12 +17,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function tStar = argLargeLP_us( f_full, bigA, bigb, P, ls, nl, nd, nu, fus )
-
 %big_size = max(max(abs(bigb)))/2 + max(max(abs(bigA)))/2; myfactor = max(P)/big_size; % gets constraints on similar scales
 
 cvx_solver mosek;
+for j = 1:2
 cvx_begin quiet
-    cvx_precision best
+    if j==1, cvx_precision best; else, cvx_precision default; end
     
     variables Z(nd,nl*nu) t(nl*nd*nu,1)
     
@@ -38,10 +38,11 @@ cvx_begin quiet
 
 cvx_end
 
-if isinf(cvx_optval) || isnan(cvx_optval) || ~strcmpi(cvx_status, 'Solved')
-    error('maxExp.m: cvx not solved.'); 
+if strcmpi(cvx_status, 'Solved') && ~isinf(cvx_optval) && ~isnan(cvx_optval)
+    tStar = t; break;
+elseif j == 2
+    error('maxExp.m: cvx not solved.');
 end
-
-tStar = t;
+end
 
 
